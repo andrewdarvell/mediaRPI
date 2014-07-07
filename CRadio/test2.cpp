@@ -138,7 +138,7 @@ int main(void){
 				BASS_ChannelGetInfo(stream,&info);
 				
 				TAG_ID3 *id3 = (TAG_ID3*)BASS_ChannelGetTags(stream,BASS_TAG_ID3);
-				cout<<id3->artist<<"\n";
+				//cout<<id3->artist<<"\n";
 			}
 			if(s == "e"){
 				BASS_ChannelStop(stream);
