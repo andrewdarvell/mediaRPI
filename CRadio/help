@@ -1,0 +1,13 @@
+git clone https://github.com/andrewdarvell/mediaRPI
+
+
+clear; g++ ./test2.cpp -L ./arm/hardfp -lbass -o ./test2
+
+
+soundcard
+
+sudo apt-get install alsa-utils
+sudo modprobe snd_bcm2835
+
+
+http://raspberrypi.stackexchange.com/questions/44/why-is-my-audio-sound-output-not-working
