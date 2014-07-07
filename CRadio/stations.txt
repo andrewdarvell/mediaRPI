@@ -1,0 +1,2 @@
+http://87.98.242.213:8046/stream
+http://streams.balboatech.com:8000/
