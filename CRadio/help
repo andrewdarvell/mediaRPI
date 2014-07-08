@@ -11,3 +11,5 @@ sudo modprobe snd_bcm2835
 
 
 http://raspberrypi.stackexchange.com/questions/44/why-is-my-audio-sound-output-not-working
+
+http://read.pudn.com/downloads146/doc/635603/c/netradio/netradio.c__.htm
