@@ -9,7 +9,7 @@
 
 using namespace std;
 
-
+//Проверка версии BASS
 bool checkVersionBass(){
 	if (HIWORD(BASS_GetVersion())!=BASSVERSION) {		
 		return FALSE;
@@ -17,12 +17,14 @@ bool checkVersionBass(){
 	return TRUE;
 }
 
+//Преобразование строки в массив Char
 char* stringToChar(string str){
 	char *result = new char[str.length()+1];
 	strcpy (result,str.c_str());
 	return result;
 }
 
+//Считаем сколько радиостанций в файле
 int countFile(string fileName){
 	ifstream fileList;
 	fileList.open(stringToChar(fileName));
@@ -38,13 +40,14 @@ int countFile(string fileName){
 	return result;
 }
 
-string* getStations(string fileName){
-	int count = countFile(fileName);
+//Читаем радиотанции из файла. 
+string* getStations(string fileName, int* count){
+	*count = countFile(fileName);
 	ifstream fileList;
 	
 	string *result;
-	if (count>0){
-		result = new string [count];
+	if (*count>0){
+		result = new string [*count];
 			
 		fileList.open(stringToChar(fileName));
 		int i = 0;
@@ -59,6 +62,7 @@ string* getStations(string fileName){
 	return result;
 }
 
+//Увеличить позицию в плейлисте на 1, или гнать по кругу
 int increaseStation(int max, int cur){
 	int result;
 	if((cur+1)==max){
@@ -69,6 +73,7 @@ int increaseStation(int max, int cur){
 	return result;
 }
 
+//Увеличиваем громкость, чтобы не выйти за пределы
 double increaseVolume(double vol){
 	double result = vol;
 	if (vol < 0.94){
@@ -77,6 +82,7 @@ double increaseVolume(double vol){
 	return result;	
 }
 
+//Уменьшаем громкость, чтобы не выйти за пределы
 double dicreaseVolume(double vol){
 	double result = vol;
 	if (vol > 0.06){
@@ -97,13 +103,14 @@ int main(void){
 		cout << "Can't initialize device";
 		return 1;
 	}
-
-	string *list = getStations("stations.txt");
+	
+	int stationsCount;
+	string *list = getStations("stations.txt", &stationsCount);
 	//cout<<(sizeof(list)/sizeof(int))<<"\n";
 	
 	//char radioStation[10000] = "http://87.98.242.213:8046/stream";
-	int stationsCount = sizeof(list)/sizeof(int);
-	int currentStation = 1;
+	//int stationsCount = sizeof(list)/sizeof(int);
+	int currentStation = 0;
 	double vol = 0.25;
 	
 	if(stationsCount>0){	
