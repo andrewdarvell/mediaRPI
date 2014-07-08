@@ -128,7 +128,7 @@ int main(void){
 
 	//Подготовка к запуску
 	int currentStation = 1;
-	double vol = 0.4;
+	double vol = 0.6;
 	bool isPlay = FALSE;
 	
 	if(stationsCount>0){	
