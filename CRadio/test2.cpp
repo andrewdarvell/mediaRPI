@@ -9,6 +9,8 @@
 
 using namespace std;
 
+HSTREAM stream;
+
 //Проверка версии BASS
 bool checkVersionBass(){
 	if (HIWORD(BASS_GetVersion())!=BASSVERSION) {		
@@ -91,6 +93,23 @@ double dicreaseVolume(double vol){
 	return result;	
 }
 
+void getInfoStream(){
+	
+	const char *text;
+	if (text = BASS_ChannelGetTags(stream, BASS_TAG_META)){
+		
+		string s = (const char*)text;
+		//cout << s <<"\n";
+		int p = s.find(";");
+		cout << s.substr(13,p-14) <<"\n";
+			
+		
+		
+	}else{
+		cout<<BASS_ErrorGetCode()<<"\n";
+	}
+}
+
 int main(void){
 	cout<<"Hello!\n"<<"This is Radio!!!\n";
 	// check the correct BASS was loaded
@@ -103,48 +122,55 @@ int main(void){
 		cout << "Can't initialize device";
 		return 1;
 	}
-	
+	//Получаем список воспроизведения и количество элементов в очереди
 	int stationsCount;
 	string *list = getStations("stations.txt", &stationsCount);
-	//cout<<(sizeof(list)/sizeof(int))<<"\n";
-	
-	//char radioStation[10000] = "http://87.98.242.213:8046/stream";
-	//int stationsCount = sizeof(list)/sizeof(int);
-	int currentStation = 0;
-	double vol = 0.25;
+
+	//Подготовка к запуску
+	int currentStation = 1;
+	double vol = 0.4;
+	bool isPlay = FALSE;
 	
 	if(stationsCount>0){	
 	
-		HSTREAM stream;
+		
 		BASS_SetVolume(vol);
+		BASS_SetConfig(BASS_CONFIG_GVOL_STREAM,vol*10000);
 		
 		string s = "";
 		while(TRUE){
 			cin >> s;
 			if (s == "s"){
 				BASS_ChannelStop(stream);
-				//BASS_StreamFree(stream);
-				//BASS_Free ();
-				//return 0;	
+				isPlay = FALSE;
 			}
 			
 			if (s == "n"){
 				BASS_ChannelStop(stream);				
 				currentStation = increaseStation(stationsCount, currentStation);
 				stream = BASS_StreamCreateURL(stringToChar(list[currentStation]), 0, 0, NULL, 0);
-				//cout<< '' << "[2J";
-				cout<<"Ok! Next\n";
-				cout<<"Playing "<<stringToChar(list[currentStation])<<"\n";
+				//cout<<"Playing "<<stringToChar(list[currentStation])<<"\n";
 				BASS_ChannelPlay(stream,TRUE);
+				getInfoStream();
+				isPlay = TRUE;
 			}
 			if(s == "p"){
-				stream=BASS_StreamCreateURL(stringToChar(list[currentStation]), 0, 0, NULL, 0);
-				BASS_ChannelPlay(stream,TRUE);
-				cout<<"Playing "<<stringToChar(list[currentStation])<<"\n";
-				BASS_CHANNELINFO info;
-				BASS_ChannelGetInfo(stream,&info);
-				
-				TAG_ID3 *id3 = (TAG_ID3*)BASS_ChannelGetTags(stream,BASS_TAG_ID3);
+				if (isPlay == FALSE){
+					stream=BASS_StreamCreateURL(stringToChar(list[currentStation]), 0, 0, NULL, 0);
+					
+					BASS_ChannelPlay(stream,TRUE);
+					
+					getInfoStream();
+					//cout<<"Playing "<<stringToChar(list[currentStation])<<"\n";
+					//BASS_CHANNELINFO info;
+					//BASS_ChannelGetInfo(stream,&info);
+					
+					//TAG_INFO tags = BASS_ChannelGetTags(stream,BASS_TAG_HTTP);
+					isPlay = TRUE;
+				}
+					
+
+				//char *id3 = (TAG_ID3*)BASS_ChannelGetTags(stream,BASS_TAG_HTTP);
 				//cout<<id3->artist<<"\n";
 			}
 			if(s == "e"){
@@ -155,12 +181,14 @@ int main(void){
 			}
 			if(s == "+"){
 				vol = increaseVolume(vol);
-				BASS_SetVolume(vol);
+				//BASS_SetVolume(vol);
+				BASS_SetConfig(BASS_CONFIG_GVOL_STREAM,vol*10000);
 				cout<<"Vol: "<<vol<<"\n";
 			}
 			if(s == "-"){
 				vol = dicreaseVolume(vol);
-				BASS_SetVolume(vol);
+				//BASS_SetVolume(vol);
+				BASS_SetConfig(BASS_CONFIG_GVOL_STREAM,vol*10000);
 				cout<<"Vol: "<<vol<<"\n";
 			}
 		}
