@@ -110,6 +110,11 @@ void getInfoStream(){
 	}
 }
 
+void CALLBACK MetaSync(HSYNC handle, DWORD channel, DWORD data, void *user)   
+{   
+    getInfoStream();   
+}  
+
 int main(void){
 	cout<<"Hello!\n"<<"This is Radio!!!\n";
 	// check the correct BASS was loaded
@@ -137,6 +142,7 @@ int main(void){
 		BASS_SetVolume(vol);
 		BASS_SetConfig(BASS_CONFIG_GVOL_STREAM,vol*10000);
 		
+		
 		string s = "";
 		while(TRUE){
 			cin >> s;
@@ -151,16 +157,16 @@ int main(void){
 				stream = BASS_StreamCreateURL(stringToChar(list[currentStation]), 0, 0, NULL, 0);
 				//cout<<"Playing "<<stringToChar(list[currentStation])<<"\n";
 				BASS_ChannelPlay(stream,TRUE);
-				getInfoStream();
+				//getInfoStream();
 				isPlay = TRUE;
 			}
 			if(s == "p"){
 				if (isPlay == FALSE){
 					stream=BASS_StreamCreateURL(stringToChar(list[currentStation]), 0, 0, NULL, 0);
-					
+					BASS_ChannelSetSync(stream,BASS_SYNC_META,0,&MetaSync,0);
 					BASS_ChannelPlay(stream,TRUE);
 					
-					getInfoStream();
+					//getInfoStream();
 					//cout<<"Playing "<<stringToChar(list[currentStation])<<"\n";
 					//BASS_CHANNELINFO info;
 					//BASS_ChannelGetInfo(stream,&info);
