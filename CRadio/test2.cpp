@@ -93,6 +93,7 @@ double dicreaseVolume(double vol){
 	return result;	
 }
 
+//Выводит инф. о том, что сейчас играет
 void getInfoStream(){
 	
 	const char *text;
@@ -110,10 +111,20 @@ void getInfoStream(){
 	}
 }
 
+//Для автоматического вызова инф при смене трека
 void CALLBACK MetaSync(HSYNC handle, DWORD channel, DWORD data, void *user)   
 {   
     getInfoStream();   
 }  
+
+void playBss(string track){
+	
+	stream=BASS_StreamCreateURL(stringToChar(track), 0, 0, NULL, 0);
+	BASS_ChannelSetSync(stream,BASS_SYNC_META,0,&MetaSync,0);
+	BASS_ChannelPlay(stream,TRUE);
+	getInfoStream(); 
+}
+
 
 int main(void){
 	cout<<"Hello!\n"<<"This is Radio!!!\n";
@@ -154,30 +165,14 @@ int main(void){
 			if (s == "n"){
 				BASS_ChannelStop(stream);				
 				currentStation = increaseStation(stationsCount, currentStation);
-				stream = BASS_StreamCreateURL(stringToChar(list[currentStation]), 0, 0, NULL, 0);
-				//cout<<"Playing "<<stringToChar(list[currentStation])<<"\n";
-				BASS_ChannelPlay(stream,TRUE);
-				//getInfoStream();
+				playBss(list[currentStation]);
 				isPlay = TRUE;
 			}
 			if(s == "p"){
 				if (isPlay == FALSE){
-					stream=BASS_StreamCreateURL(stringToChar(list[currentStation]), 0, 0, NULL, 0);
-					BASS_ChannelSetSync(stream,BASS_SYNC_META,0,&MetaSync,0);
-					BASS_ChannelPlay(stream,TRUE);
-					
-					//getInfoStream();
-					//cout<<"Playing "<<stringToChar(list[currentStation])<<"\n";
-					//BASS_CHANNELINFO info;
-					//BASS_ChannelGetInfo(stream,&info);
-					
-					//TAG_INFO tags = BASS_ChannelGetTags(stream,BASS_TAG_HTTP);
+					playBss(list[currentStation]);
 					isPlay = TRUE;
 				}
-					
-
-				//char *id3 = (TAG_ID3*)BASS_ChannelGetTags(stream,BASS_TAG_HTTP);
-				//cout<<id3->artist<<"\n";
 			}
 			if(s == "e"){
 				BASS_ChannelStop(stream);
