@@ -7,9 +7,15 @@
 #include <fstream>
 #include "bass.h"
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
 using namespace std;
 
 HSTREAM stream;
+
+bool lastfm = FALSE;
 
 //Проверка версии BASS
 bool checkVersionBass(){
@@ -102,10 +108,7 @@ void getInfoStream(){
 		string s = (const char*)text;
 		//cout << s <<"\n";
 		int p = s.find(";");
-		cout << s.substr(13,p-14) <<"\n";
-			
-		
-		
+		cout << s.substr(13,p-14) <<"\n";	
 	}else{
 		cout<<BASS_ErrorGetCode()<<"\n";
 	}
@@ -126,7 +129,43 @@ void playBss(string track){
 }
 
 
+int sendToJava(){
+	int sock;
+
+	char message[] = "Hello there!\n";
+	char buf[1024];
+	
+	struct sockaddr_in addr;
+
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+	if(sock < 0)
+	{
+		perror("socket");
+		return 1;
+	}
+
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(3425); // или любой другой порт...
+	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	
+	if(connect(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+	{
+		perror("connect");
+		return 2;
+	}
+
+	send(sock, message, sizeof(message), 0);
+	recv(sock, buf, 1024, 0);
+	cout<<buf<<"\n";
+	
+	close(sock);
+
+	return 0;	
+}
+
+
 int main(void){
+	
 	cout<<"Hello!\n"<<"This is Radio!!!\n";
 	// check the correct BASS was loaded
 	
@@ -144,13 +183,19 @@ int main(void){
 
 	//Подготовка к запуску
 	int currentStation = 1;
-	double vol = 0.6;
+	double vol = 0.2;
 	bool isPlay = FALSE;
+	
+	sendToJava();
+	
+	//if(socketConnect()==0){
+	//	lastfm = TRUE;
+	//}
 	
 	if(stationsCount>0){	
 	
 		
-		BASS_SetVolume(vol);
+		//BASS_SetVolume(vol);
 		BASS_SetConfig(BASS_CONFIG_GVOL_STREAM,vol*10000);
 		
 		
@@ -160,6 +205,7 @@ int main(void){
 			if (s == "s"){
 				BASS_ChannelStop(stream);
 				isPlay = FALSE;
+				
 			}
 			
 			if (s == "n"){
