@@ -99,40 +99,10 @@ double dicreaseVolume(double vol){
 	return result;	
 }
 
-//Выводит инф. о том, что сейчас играет
-void getInfoStream(){
-	
-	const char *text;
-	if (text = BASS_ChannelGetTags(stream, BASS_TAG_META)){
-		
-		string s = (const char*)text;
-		//cout << s <<"\n";
-		int p = s.find(";");
-		cout << s.substr(13,p-14) <<"\n";	
-	}else{
-		cout<<BASS_ErrorGetCode()<<"\n";
-	}
-}
-
-//Для автоматического вызова инф при смене трека
-void CALLBACK MetaSync(HSYNC handle, DWORD channel, DWORD data, void *user)   
-{   
-    getInfoStream();   
-}  
-
-void playBss(string track){
-	
-	stream=BASS_StreamCreateURL(stringToChar(track), 0, 0, NULL, 0);
-	BASS_ChannelSetSync(stream,BASS_SYNC_META,0,&MetaSync,0);
-	BASS_ChannelPlay(stream,TRUE);
-	getInfoStream(); 
-}
-
-
-int sendToJava(){
+int sendToJava(char *message, int size){
 	int sock;
 
-	char message[] = "Hello there!\n";
+	//char message[] = "Hello there!\n";
 	char buf[1024];
 	
 	struct sockaddr_in addr;
@@ -154,13 +124,46 @@ int sendToJava(){
 		return 2;
 	}
 
-	send(sock, message, sizeof(message), 0);
+	//send(sock, message, sizeof(message), 0);
+	send(sock, message, size , 0);
 	recv(sock, buf, 1024, 0);
 	cout<<buf<<"\n";
 	
 	close(sock);
 
 	return 0;	
+}
+
+
+//Выводит инф. о том, что сейчас играет
+void getInfoStream(){
+	
+	const char *text;
+	if (text = BASS_ChannelGetTags(stream, BASS_TAG_META)){
+		
+		string s = (const char*)text;
+		//cout << s <<"\n";
+		int p = s.find(";");
+		string resStr = s.substr(13,p-14);
+		cout << resStr <<"\n";
+		sendToJava(stringToChar("P_"+resStr+"\n"),resStr.length());
+	}else{
+		cout<<BASS_ErrorGetCode()<<"\n";
+	}
+}
+
+//Для автоматического вызова инф при смене трека
+void CALLBACK MetaSync(HSYNC handle, DWORD channel, DWORD data, void *user)   
+{   
+    getInfoStream();   
+}  
+
+void playBss(string track){
+	
+	stream=BASS_StreamCreateURL(stringToChar(track), 0, 0, NULL, 0);
+	BASS_ChannelSetSync(stream,BASS_SYNC_META,0,&MetaSync,0);
+	BASS_ChannelPlay(stream,TRUE);
+	getInfoStream(); 
 }
 
 
@@ -186,7 +189,7 @@ int main(void){
 	double vol = 0.2;
 	bool isPlay = FALSE;
 	
-	sendToJava();
+	//sendToJava();
 	
 	//if(socketConnect()==0){
 	//	lastfm = TRUE;
