@@ -146,7 +146,7 @@ void getInfoStream(){
 		int p = s.find(";");
 		string resStr = s.substr(13,p-14);
 		cout << resStr <<"\n";
-		sendToJava(stringToChar("P_"+resStr+"\n"),resStr.length());
+		sendToJava(stringToChar("P_"+resStr+"\n"),resStr.length()+4);
 	}else{
 		cout<<BASS_ErrorGetCode()<<"\n";
 	}
