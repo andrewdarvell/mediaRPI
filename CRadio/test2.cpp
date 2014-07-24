@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include "bass.h"
 
 #include <sys/types.h>
@@ -16,6 +17,14 @@ using namespace std;
 HSTREAM stream;
 
 bool lastfm = FALSE;
+
+
+string IntToString (int a)
+{
+    ostringstream temp;
+    temp<<a;
+    return temp.str();
+}
 
 //Проверка версии BASS
 bool checkVersionBass(){
@@ -146,15 +155,23 @@ void getInfoStream(){
 		int p = s.find(";");
 		string resStr = s.substr(13,p-14);
 		cout << resStr <<"\n";
-		sendToJava(stringToChar("P_"+resStr+"\n"),resStr.length()+4);
+		time_t t = time(0);  // t is an integer type
+		string s1 = IntToString(t);
+		//cout<<s1.length();
+		sendToJava(stringToChar("P_"+s1+"P_"+resStr),resStr.length()+5+s1.length());
 	}else{
 		cout<<BASS_ErrorGetCode()<<"\n";
 	}
 }
 
+void sendStop(){
+	sendToJava(stringToChar("S_"),3);	
+}
+
 //Для автоматического вызова инф при смене трека
 void CALLBACK MetaSync(HSYNC handle, DWORD channel, DWORD data, void *user)   
 {   
+	sendStop();
     getInfoStream();   
 }  
 
@@ -167,8 +184,9 @@ void playBss(string track){
 }
 
 
+
 int main(void){
-	
+		
 	cout<<"Hello!\n"<<"This is Radio!!!\n";
 	// check the correct BASS was loaded
 	
@@ -207,23 +225,40 @@ int main(void){
 			cin >> s;
 			if (s == "s"){
 				BASS_ChannelStop(stream);
-				isPlay = FALSE;
-				
+				if (isPlay){
+					sendStop();
+				}
+				isPlay = FALSE;								
 			}
 			
 			if (s == "n"){
-				BASS_ChannelStop(stream);				
+				BASS_ChannelStop(stream);
+				if (isPlay){
+					sendStop();
+				}
 				currentStation = increaseStation(stationsCount, currentStation);
 				playBss(list[currentStation]);
-				isPlay = TRUE;
+				if (BASS_ChannelIsActive(stream) == BASS_ACTIVE_PLAYING){
+					isPlay = TRUE;						
+				}else{
+					isPlay = FALSE;
+					cout<<"error"<<"\n";
+				}
 			}
 			if(s == "p"){
 				if (isPlay == FALSE){
 					playBss(list[currentStation]);
-					isPlay = TRUE;
+					if (BASS_ChannelIsActive(stream) == BASS_ACTIVE_PLAYING){
+						isPlay = TRUE;						
+					}else{
+						isPlay = FALSE;
+						cout<<"error"<<"\n";
+					}
+					
 				}
 			}
 			if(s == "e"){
+				sendStop();
 				BASS_ChannelStop(stream);
 				BASS_StreamFree(stream);
 				BASS_Free ();

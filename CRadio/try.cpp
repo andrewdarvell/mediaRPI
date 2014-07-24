@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <bass.h>
+#include "bass.h"
 #include <unistd.h>
+#include <iostream>
+using namespace std;
 
-void geterror(char *msg)
+
+void geterror(char* msg)
 {
 	printf("%s:%d\n", msg, BASS_ErrorGetCode());
 }
@@ -22,7 +25,8 @@ int main(int argc, char *argv[])
 
 	if(!BASS_Init(-1, 44100, BASS_DEVICE_DMIX, 0, NULL))
 	{
-		geterror("Init Error");
+		//geterror("Init Error");
+		cout<<"Error   "<<BASS_ErrorGetCode()<<"\n";
 	}
 	
 
@@ -42,7 +46,8 @@ int main(int argc, char *argv[])
 	
 	// ----------------- Current Device ------------------
 	if(BASS_GetDevice() == -1)
-		geterror("Device Error");
+		//geterror("Device Error");
+	cout<<"Error   "<<BASS_ErrorGetCode()<<"\n";
 	else
 		printf("Selected Device:%d\n", BASS_GetDevice());
 	// ---------------------------------------------------
@@ -52,7 +57,8 @@ int main(int argc, char *argv[])
 	
 	// ---------------- Get Global Volume ----------------
 	if(BASS_GetVolume() == -1.0)
-		geterror("Cann't Get Volume Error");
+		//geterror("Cann't Get Volume Error");
+	cout<<"Error   "<<BASS_ErrorGetCode()<<"\n";
 	else
 		printf("%f\n", BASS_GetVolume());
 	// ---------------------------------------------------
@@ -61,7 +67,8 @@ int main(int argc, char *argv[])
 	// ---------------- Create Stream --------------------
 	stream = BASS_StreamCreateFile(FALSE, filepath, 0, 0, 0);
 	if(stream == 0)
-		geterror("StreamCreate Error");
+		//geterror("StreamCreate Error");
+	cout<<"Error   "<<BASS_ErrorGetCode()<<"\n";
 	else
 		printf("StreamHandle:%d\n",stream);
 	// ---------------------------------------------------
@@ -83,7 +90,8 @@ int main(int argc, char *argv[])
 	
         if(BASS_ChannelPlay(TRUE, stream))
 	{	
-		geterror("Play");
+		//geterror("Play");
+		cout<<"Error   "<<BASS_ErrorGetCode()<<"\n";
 	}
 	while(1)
 	{
