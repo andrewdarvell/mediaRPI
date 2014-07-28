@@ -1,4 +1,4 @@
-/*test1 bass*/
+/*test1 bassfgdggs*/
 
 #include <stdio.h>
 #include <string.h>
@@ -8,15 +8,14 @@
 #include <sstream>
 #include "bass.h"
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+
 
 using namespace std;
 
 HSTREAM stream;
 
 bool lastfm = FALSE;
+int id;
 
 
 string IntToString (int a)
@@ -156,6 +155,7 @@ void getInfoStream(){
 		string resStr = s.substr(13,p-14);
 		cout << resStr <<"\n";
 		time_t t = time(0);  // t is an integer type
+		id=t;
 		string s1 = IntToString(t);
 		//cout<<s1.length();
 		sendToJava(stringToChar("P_"+s1+"P_"+resStr),resStr.length()+5+s1.length());
@@ -165,7 +165,8 @@ void getInfoStream(){
 }
 
 void sendStop(){
-	sendToJava(stringToChar("S_"),3);	
+	string s1 = IntToString(id);
+	sendToJava(stringToChar("S_"+s1),3+s1.length());	
 }
 
 //Для автоматического вызова инф при смене трека
@@ -212,7 +213,7 @@ int main(void){
 	//if(socketConnect()==0){
 	//	lastfm = TRUE;
 	//}
-	
+	id=0;
 	if(stationsCount>0){	
 	
 		
