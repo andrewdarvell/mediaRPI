@@ -8,6 +8,11 @@
 #include <sstream>
 #include "bass.h"
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+
 
 
 using namespace std;
@@ -17,7 +22,11 @@ HSTREAM stream;
 bool lastfm = FALSE;
 int id;
 
-
+bool FileExists(const char *fname)
+{
+  return access(fname, 0) != -1;
+}
+					
 string IntToString (int a)
 {
     ostringstream temp;
@@ -76,6 +85,19 @@ string* getStations(string fileName, int* count){
 	}
 	fileList.close();
 	return result;
+}
+
+string getCommand(){
+	ifstream fileList;
+	fileList.open("command");
+	string result;
+	string buff;
+	while(!fileList.eof()){
+			fileList >> buff;			
+		}
+	fileList.close();
+	remove("command");
+	return buff;
 }
 
 //Увеличить позицию в плейлисте на 1, или гнать по кругу
@@ -214,16 +236,30 @@ int main(void){
 	//	lastfm = TRUE;
 	//}
 	id=0;
+	
 	if(stationsCount>0){	
 	
 		
 		//BASS_SetVolume(vol);
-		BASS_SetConfig(BASS_CONFIG_GVOL_STREAM,vol*10000);
 		
 		
 		string s = "";
-		while(TRUE){
-			cin >> s;
+		while(1){
+			//cout<<"111\n";
+			BASS_SetConfig(BASS_CONFIG_GVOL_STREAM,vol*10000);
+		
+			if(FileExists("lock")){
+				//cout<<"locked\n";
+			}else{
+				if(FileExists("command")){
+					s = getCommand();
+					cout<<s<<"\n";				
+				}
+				
+			}
+		
+			//cin >> s;
+			
 			if (s == "s"){
 				BASS_ChannelStop(stream);
 				if (isPlay){
@@ -277,6 +313,8 @@ int main(void){
 				BASS_SetConfig(BASS_CONFIG_GVOL_STREAM,vol*10000);
 				cout<<"Vol: "<<vol<<"\n";
 			}
+			s="";
+			sleep(2);
 		}
 	}
 }
